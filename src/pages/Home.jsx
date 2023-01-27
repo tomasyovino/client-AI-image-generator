@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Loader, Card, FormField } from "../components";
+import { motion } from "framer-motion";
 
 const RenderCards = ({ data, title }) => {
     if(data?.length > 0) return data.map((post) => <Card key={post._id} {...post} />);
@@ -13,6 +14,49 @@ const Home = () => {
     const [loading, setLoading] = useState(false);
     const [allPost, setAllPost] = useState(null);
     const [searchText, setSearchText] = useState('');
+    const [ searchedResults, setSearchedResults] = useState(null);
+    const [ searchTimeout, setSearchTimeout] = useState(null);
+
+    useEffect(() => {
+        const fetchPosts = async () => {
+            setLoading(true);
+            try {
+                const response = await fetch (`${import.meta.env.VITE_BASE_URL}/api/posts`, {
+                    method: "GET",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if(response.ok) {
+                    const result = await response.json();
+                    setAllPost(result.data.reverse());
+                };
+                
+            } catch (err) {
+                console.log(err);
+                alert(err);
+            } finally {
+                setLoading(false);
+            };
+        };
+
+        fetchPosts();
+    }, []);
+
+    const handleSearchChange = (e) => {
+        clearTimeout(searchTimeout);
+
+        setSearchText(e.target.value);
+
+        setSearchTimeout(
+            setTimeout(() => {
+                const searchResults = allPost.filter((post) => post.name.toLowerCase().includes(searchText.toLowerCase()) || post.prompt.toLowerCase().includes(searchText.toLowerCase()));
+
+                setSearchedResults(searchResults);
+            }, 500)
+        );
+    };
 
     return (
         <section className='max-w-7xl mx-auto'>
@@ -22,7 +66,14 @@ const Home = () => {
             </div>
 
             <div className='mt-16 '>
-                <FormField />
+                <FormField 
+                    labelName="Search posts"
+                    type="text"
+                    name="text"
+                    placeholder="Search posts"
+                    value={searchText}
+                    handleChange={handleSearchChange}
+                />
             </div>
 
             <div className='mt-10 '>
@@ -35,19 +86,19 @@ const Home = () => {
                         { searchText && (
                             <h2 className='font-medium text-[#666e75] text-xl mb-3'>Showing results for <span className='text-[#222328]'>{searchText}</span></h2>
                         ) }
-                        <div className='grid lg:grid-cols-4 sm:grid-cols-3 xs:grid-cols-2 grid-cols-1 gap-3'>
+                        <motion.div layout className='grid lg:grid-cols-4 sm:grid-cols-3 xs:grid-cols-2 grid-cols-1 gap-3'>
                             { searchText ? (
                                 <RenderCards 
-                                    data={[]}
+                                    data={searchedResults}
                                     title="No search results found"
                                 />
                             ) : (
                                 <RenderCards 
-                                    data={[]}
+                                    data={allPost}
                                     title="No posts found"
                                 />
                             ) }
-                        </div>
+                        </motion.div>
                     </>
                 ) }
             </div>
