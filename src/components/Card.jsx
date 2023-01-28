@@ -1,11 +1,20 @@
 import React from 'react';
+import { motion } from "framer-motion";
 import { download } from "../assets";
 import { downloadImage } from "../utils";
 
 
 const Card = ({ _id, name, prompt, photo }) => {
+  const item = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+        y: 0,
+        opacity: 1
+    }
+  };
+
   return (
-    <div className='rounded-xl group relative shadow-card hover:shadow-cardhover card'>
+    <motion.div className='rounded-xl group relative shadow-card hover:shadow-cardhover card item' variants={item}>
       <img 
         className='w-full h-auto object-cover rounded-xl'
         src={photo}
@@ -25,7 +34,7 @@ const Card = ({ _id, name, prompt, photo }) => {
           </button>
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 
