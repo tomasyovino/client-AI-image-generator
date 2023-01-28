@@ -83,13 +83,13 @@ const Home = () => {
                                 <Pagination 
                                     posts={searchedResults}
                                     title="No search results found"
-                                    itemsPerPage={11}
+                                    itemsPerPage={10}
                                 />
                             ) : (
                                 <Pagination 
                                     posts={allPost}
                                     title="No posts found"
-                                    itemsPerPage={11}
+                                    itemsPerPage={10}
                                 />
                             ) }
                         </div>
